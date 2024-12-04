@@ -29,6 +29,9 @@ class SAM2:
         for i in trange(len(images)):
             self.model.set_image(images[i])
             masks_, _, _ = self.model.predict(box=boxes[i], multimask_output=False)
-            masks.append(masks_.squeeze(1).astype(bool))
+            if masks_.ndim == 3:
+                masks.append(masks_.astype(bool))
+            else:
+                masks.append(masks_.squeeze(1).astype(bool))
             
         return masks
