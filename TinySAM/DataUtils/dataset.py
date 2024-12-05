@@ -180,20 +180,22 @@ class ZeroShotObjectDetectionDataset(Dataset):
             axs[1].set_title("Ground Truth Mask")
             
     
-    def evaluate_precitions(self, boxes, labels, masks, scores, return_processed=False):
+    def evaluate_precitions(self, boxes, labels, masks, scores, return_processed=False, per_class_stats=True):
         # Scores are expected to be sorted in descending order
         
         if len(boxes) != self.__len__() or len(labels) != self.__len__() or len(masks) != self.__len__() or len(scores) != self.__len__():
             raise ValueError("Length of predictions should be equal to the length of the dataset.")
 
-        iou = MeanIoU(num_classes = len(self.label_dict)+1, include_background=False, input_format='index')
-        map = MeanAveragePrecision()
+        iou = MeanIoU(num_classes = len(self.label_dict)+1, include_background=False, input_format='index', per_class=per_class_stats)
+        map = MeanAveragePrecision(iou_type='segm', class_metrics=per_class_stats)
+        overall_iou = 0
         
         if return_processed:
             processed_boxes = []
             processed_masks = []
             processed_labels = []
             processed_scores = []
+            unified_masks = []
         
         for i in trange(len(boxes)):
             # first process non-instance labels into a single box and mask
@@ -232,6 +234,7 @@ class ZeroShotObjectDetectionDataset(Dataset):
                 processed_masks.append(final_masks)
                 processed_labels.append(final_labels)
                 processed_scores.append(final_scores)
+                unified_masks.append(unified_mask)
             
             final_boxes = torch.tensor(np.array(final_boxes)).float()
             final_masks = torch.tensor(np.array(final_masks)).bool()
@@ -240,6 +243,10 @@ class ZeroShotObjectDetectionDataset(Dataset):
             unified_mask = torch.tensor(unified_mask).long()
             
             iou.update(unified_mask, torch.tensor(self.label_ids[i]).long())
+            
+            intersection = (unified_mask == self.label_ids[i])[np.logical_and(unified_mask != 0, self.label_ids[i] != 0)].sum()
+            union = ((unified_mask + self.label_ids[i]) != 0).sum()
+            overall_iou += intersection/union/len(boxes)
             
             preds = [{
                 'boxes': final_boxes,
@@ -259,12 +266,13 @@ class ZeroShotObjectDetectionDataset(Dataset):
         mIoU = iou.compute()
         mAP = map.compute()
         print("Mean IoU: ", mIoU)
+        print("Average Whole Image IoU: ", overall_iou)
         print("Precision Scores: ", mAP)
         
         if return_processed:
-            return mIoU, mAP, processed_boxes, processed_labels, processed_masks, processed_scores
+            return mIoU, mAP, overall_iou, processed_boxes, processed_labels, processed_masks, processed_scores, unified_masks
         else:
-            return mIoU, mAP
+            return mIoU, mAP, overall_iou
         
             
         
