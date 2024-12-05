@@ -5,7 +5,7 @@ from tqdm.auto import trange
 class EfficientSAM:
     def __init__(self, model_variant: str = "S", device: str = None, compile=False):
         '''
-        Grounding DINO model for zero-shot object detection. Prior for SAM.
+        EfficientSAM model for zero-shot object detection.
         
         Args:
             model_name (str): model name from Hugging Face Model Hub. (Default: "S", Tiny Variant: "Ti")

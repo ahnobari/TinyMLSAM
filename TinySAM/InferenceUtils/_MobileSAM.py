@@ -1,14 +1,14 @@
 from sam2.sam2_image_predictor import SAM2ImagePredictor
+from mobile_sam import sam_model_registry, SamPredictor
 import torch
 from tqdm.auto import trange
 
-class SAM2:
-    def __init__(self, model_name: str = "facebook/sam2-hiera-large", device: str = None, compile=False):
+class MobileSAM:
+    def __init__(self, device: str = None, compile=False):
         '''
-        Segment Anything Model 2 (SAM2) model for zero-shot object detection.
+        MobileSAM model for zero-shot object detection.
         
         Args:
-            model_name (str): model name from Hugging Face Model Hub. (Default: "facebook/sam2-hiera-large", see hugging face model hub for more model variations)
             device (str): device to run the model on. (Default: None, Auto Device Selection)
         '''
         
@@ -17,7 +17,11 @@ class SAM2:
         if self.device is None:
             self.device = "cuda" if torch.cuda.is_available() else "cpu"
         
-        self.model = SAM2ImagePredictor.from_pretrained(model_name, device_map = self.device)
+        self.model = sam_model_registry['vit_t'](checkpoint='weights/mobile_sam.pt')
+        self.model.to(self.device)
+        self.model.eval()
+        
+        self.predictor = SamPredictor(self.model)
         
         if compile:
             self.model.model.compile()
@@ -27,8 +31,11 @@ class SAM2:
     def __call__(self, images, boxes):
         masks = []
         for i in trange(len(images)):
-            self.model.set_image(images[i])
-            masks_, _, _ = self.model.predict(box=boxes[i], multimask_output=False)
+            # self.model.set_image(images[i])
+            self.predictor.set_image(images[i])
+            box_input = self.predictor.transform.apply_boxes(boxes[i], self.predictor.original_size)
+            masks_, _, _ = self.predictor.predict_torch(None, None, boxes=torch.tensor(box_input).to(self.device).float(), multimask_output=False)
+            masks_ = masks_.cpu().numpy()
             if masks_.ndim == 3:
                 masks.append(masks_.astype(bool))
             else:

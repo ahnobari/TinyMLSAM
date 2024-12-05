@@ -25,5 +25,7 @@ torchaudio
 torchmetrics
 matplotlib
 cv2
+timm
 git+https://github.com/facebookresearch/sam2.git
 git+https://github.com/yformer/EfficientSAM.git
+git+https://github.com/ChaoningZhang/MobileSAM.git
