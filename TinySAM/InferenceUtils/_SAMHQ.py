@@ -1,15 +1,17 @@
-from mobile_sam import sam_model_registry, SamPredictor
+from segment_anything_hq import sam_model_registry, SamPredictor
 import torch
 from tqdm.auto import trange
 
+
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 
-class MobileSAM:
-    def __init__(self, device: str = None, compile=False):
+class SAMHQ:
+    def __init__(self, variant = "vit_h", device: str = None, compile=False):
         '''
         MobileSAM model for zero-shot object detection.
         
         Args:
+            variant (str): variant of the model to use. (Default: "vit_h", one of "vit_h", "vit_l", "vit_b", "vit_tiny")
             device (str): device to run the model on. (Default: None, Auto Device Selection)
         '''
         
@@ -17,11 +19,11 @@ class MobileSAM:
         
         if self.device is None:
             self.device = "cuda" if torch.cuda.is_available() else "cpu"
-        
+            
         global DEVICE 
         DEVICE = self.device
         
-        self.model = sam_model_registry['vit_t'](checkpoint='weights/mobile_sam.pt')
+        self.model = sam_model_registry[variant](checkpoint=f'weights/sam_hq_{variant}.pth')
         self.model.to(self.device)
         self.model.eval()
         

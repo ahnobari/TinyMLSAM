@@ -2,6 +2,8 @@ from sam2.sam2_image_predictor import SAM2ImagePredictor
 import torch
 from tqdm.auto import trange
 
+DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
+
 class SAM2:
     def __init__(self, model_name: str = "facebook/sam2-hiera-large", device: str = None, compile=False):
         '''
@@ -17,13 +19,17 @@ class SAM2:
         if self.device is None:
             self.device = "cuda" if torch.cuda.is_available() else "cpu"
         
+        global DEVICE 
+        DEVICE = self.device
+        
         self.model = SAM2ImagePredictor.from_pretrained(model_name, device_map = self.device)
         
         if compile:
             self.model.model.compile()
     
     @torch.inference_mode()
-    @torch.autocast(device_type="cuda", dtype=torch.bfloat16)
+    @torch.autocast(device_type=DEVICE, dtype=torch.bfloat16)
+    @torch.no_grad()
     def __call__(self, images, boxes):
         masks = []
         for i in trange(len(images)):

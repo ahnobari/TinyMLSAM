@@ -2,6 +2,8 @@ from efficient_sam.build_efficient_sam import build_efficient_sam_vitt, build_ef
 import torch
 from tqdm.auto import trange
 
+DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
+
 class EfficientSAM:
     def __init__(self, model_variant: str = "S", device: str = None, compile=False):
         '''
@@ -17,6 +19,9 @@ class EfficientSAM:
         if self.device is None:
             self.device = "cuda" if torch.cuda.is_available() else "cpu"
         
+        global DEVICE 
+        DEVICE = self.device
+        
         self.model = build_efficient_sam_vits() if model_variant == "S" else build_efficient_sam_vitt()
         self.model.to(self.device)
         self.model.eval()
@@ -25,7 +30,7 @@ class EfficientSAM:
             self.model.model.compile()
     
     @torch.inference_mode()
-    @torch.autocast(device_type="cuda", dtype=torch.bfloat16)
+    @torch.autocast(device_type=DEVICE, dtype=torch.bfloat16)
     @torch.no_grad()
     def __call__(self, images, boxes):
         masks = []

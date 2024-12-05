@@ -138,9 +138,15 @@ cython_debug/
 *_exp*
 
 # ignore data files
+/Data/*/*
+!/Data/*/*.py
+!/Data/*/*.gitkeep
 *.npy
-*.npy.gz
-*label_dict.json*
+
 
 #ignore weight files in weights folder
-weights/*.pt
+weights/*
+
+# exception .gitkeep and py files in weights folder
+!weights/.gitkeep
+!weights/*.py

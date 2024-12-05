@@ -1,15 +1,24 @@
-from mobile_sam import sam_model_registry, SamPredictor
+# fake the edgesam unused module
+# class projects(object):
+#     class EfficientDet(object):
+#         class efficientdet(object):
+#             def __init__(self, *args, **kwargs):
+#                 pass
+
+from edge_sam import sam_model_registry, SamPredictor
 import torch
 from tqdm.auto import trange
 
+
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 
-class MobileSAM:
-    def __init__(self, device: str = None, compile=False):
+class EdgeSAM:
+    def __init__(self, variant = "", device: str = None, compile=False):
         '''
-        MobileSAM model for zero-shot object detection.
+        EdgeSAM model for zero-shot object detection.
         
         Args:
+            variant (str): variant of the model to use. (Default: "", one of "", "_3x")
             device (str): device to run the model on. (Default: None, Auto Device Selection)
         '''
         
@@ -21,7 +30,7 @@ class MobileSAM:
         global DEVICE 
         DEVICE = self.device
         
-        self.model = sam_model_registry['vit_t'](checkpoint='weights/mobile_sam.pt')
+        self.model = sam_model_registry["edge_sam"](checkpoint=f'weights/edge_sam{variant}.pth')
         self.model.to(self.device)
         self.model.eval()
         
@@ -39,8 +48,8 @@ class MobileSAM:
             # self.model.set_image(images[i])
             self.predictor.set_image(images[i])
             box_input = self.predictor.transform.apply_boxes(boxes[i], self.predictor.original_size)
-            masks_, _, _ = self.predictor.predict_torch(None, None, boxes=torch.tensor(box_input).to(self.device).float(), multimask_output=False)
-            masks_ = masks_.cpu().numpy()
+            masks_, _, _ = self.predictor.predict_torch(None, None, None, boxes=torch.tensor(box_input).to(self.device).float())
+            masks_ = masks_.cpu().numpy()[:, 0:1, :, :]
             if masks_.ndim == 3:
                 masks.append(masks_.astype(bool))
             else:

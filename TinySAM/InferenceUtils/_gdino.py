@@ -2,6 +2,8 @@ import torch
 from transformers import AutoModelForZeroShotObjectDetection, AutoProcessor
 from typing import List
 
+DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
+
 class GDino:
     def __init__(self, model_name: str = "IDEA-Research/grounding-dino-base", device: str = None, box_threshold: float = 0.3, text_threshold: float = 0.25, compile=False):
         '''
@@ -17,6 +19,9 @@ class GDino:
         if self.device is None:
             self.device = "cuda" if torch.cuda.is_available() else "cpu"
         
+        global DEVICE 
+        DEVICE = self.device
+        
         self.model = AutoModelForZeroShotObjectDetection.from_pretrained(model_name, device_map = self.device)
         
         if compile:
@@ -28,7 +33,7 @@ class GDino:
         self.text_threshold = text_threshold
 
     @torch.inference_mode()
-    @torch.autocast(device_type="cuda", dtype=torch.bfloat16)
+    @torch.autocast(device_type=DEVICE, dtype=torch.bfloat16)
     @torch.no_grad()
     def __call__(self, images: torch.tensor, input_ids: torch.Tensor, target_image_size: tuple, **kwargs):
         batch_size = images.shape[0]

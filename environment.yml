@@ -1,0 +1,21 @@
+name: TinySAM_
+channels:
+  - conda-forge
+  - defaults
+  - pytorch
+  - nvidia
+dependencies:
+  - python=3.10
+  - numpy
+  - jupyter
+  - matplotlib
+  - pandas
+  - scipy
+  - opencv
+  - pip
+  - pytorch==2.1.2 
+  - torchvision==0.16.2 
+  - torchaudio==2.1.2 
+  - pytorch-cuda=12.1
+  - mmdet
+  - mmcv==2.1.0

@@ -1,15 +1,19 @@
-from mobile_sam import sam_model_registry, SamPredictor
+# from segment_anything_hq import sam_model_registry, SamPredictor
+from efficientvit.sam_model_zoo import create_efficientvit_sam_model
+from efficientvit.models.efficientvit.sam import EfficientViTSamPredictor
 import torch
 from tqdm.auto import trange
 
+
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 
-class MobileSAM:
-    def __init__(self, device: str = None, compile=False):
+class EfficientViTSAM:
+    def __init__(self, variant = "efficientvit-sam-xl1", device: str = None, compile=False):
         '''
-        MobileSAM model for zero-shot object detection.
+        EfficientViTSAM model for zero-shot object detection.
         
         Args:
+            variant (str): variant of the model to use. (Default: "efficientvit-sam-xl1", one of "efficientvit-sam-xl1", ""efficientvit-sam-l0", "efficientvit-sam-l1", "efficientvit-sam-l2", "efficientvit-sam-xl0")
             device (str): device to run the model on. (Default: None, Auto Device Selection)
         '''
         
@@ -17,15 +21,16 @@ class MobileSAM:
         
         if self.device is None:
             self.device = "cuda" if torch.cuda.is_available() else "cpu"
-        
+            
         global DEVICE 
         DEVICE = self.device
         
-        self.model = sam_model_registry['vit_t'](checkpoint='weights/mobile_sam.pt')
+        chk = variant.replace('-','_')
+        self.model = create_efficientvit_sam_model(variant, pretrained=True, weight_url=f'weights/{chk}.pt')
         self.model.to(self.device)
         self.model.eval()
         
-        self.predictor = SamPredictor(self.model)
+        self.predictor = EfficientViTSamPredictor(self.model)
         
         if compile:
             self.model.model.compile()
