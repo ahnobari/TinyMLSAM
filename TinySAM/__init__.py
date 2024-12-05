@@ -6,3 +6,4 @@ warnings.filterwarnings("ignore")
 
 from .DataUtils import *
 from .InferenceUtils import *
+from .QuantizationUtils import *
