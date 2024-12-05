@@ -1,9 +1,11 @@
 # fake the edgesam unused module
-# class projects(object):
-#     class EfficientDet(object):
-#         class efficientdet(object):
-#             def __init__(self, *args, **kwargs):
-#                 pass
+class projects(object):
+    class efficientdet(object):
+        def __init__(self, *args, **kwargs):
+            pass
+            
+import sys
+sys.modules["projects.EfficientDet"] = projects
 
 from edge_sam import sam_model_registry, SamPredictor
 import torch
