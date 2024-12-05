@@ -1,5 +1,128 @@
 # To Be Written!!
 
+## Model Variants
+<table>
+  <thead>
+    <tr>
+      <td>Grounding Dino Variant</td>
+      <td>SAM Model</td>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td rowspan=18>Base</td>
+      <td>EdgeSAM</td>
+    </tr>
+    <tr>
+      <td>EdgeSAM_3x</td>
+    </tr>
+    <tr>
+      <td>EfficientSAM_S</td>
+    </tr>
+    <tr>
+      <td>EfficientSAM_Ti</td>
+    </tr>
+    <tr>
+      <td>EfficientViTSAM_xl1</td>
+    </tr>
+    <tr>
+      <td>EfficientViTSAM_xl0</td>
+    </tr>
+    <tr>
+      <td>EfficientViTSAM_l2</td>
+    </tr>
+    <tr>
+      <td>EfficientViTSAM_l1</td>
+    </tr>
+    <tr>
+      <td>EfficientViTSAM_l0</td>
+    </tr>
+    <tr>
+      <td>MobileSAM</td>
+    </tr>
+    <tr>
+      <td>facebook/sam2.1-hiera-tiny</td>
+    </tr>
+    <tr>
+      <td>facebook/sam2.1-hiera-small</td>
+    </tr>
+    <tr>
+      <td>facebook/sam2.1-hiera-large</td>
+    </tr>
+    <tr>
+      <td>facebook/sam2.1-hiera-base-plus</td>
+    </tr>
+    <tr>
+      <td>SAMHQ_vit_h</td>
+    </tr>
+    <tr>
+      <td>SAMHQ_vit_l</td>
+    </tr>
+    <tr>
+      <td>SAMHQ_vit_b</td>
+    </tr>
+    <tr>
+      <td>SAMHQ_vit_tiny</td>
+    </tr>
+    <tr>
+      <td rowspan=18>Tiny</td>
+      <td>EdgeSAM</td>
+    </tr>
+    <tr>
+      <td>EdgeSAM_3x</td>
+    </tr>
+    <tr>
+      <td>EfficientSAM_S</td>
+    </tr>
+    <tr>
+      <td>EfficientSAM_Ti</td>
+    </tr>
+    <tr>
+      <td>EfficientViTSAM_xl1</td>
+    </tr>
+    <tr>
+      <td>EfficientViTSAM_xl0</td>
+    </tr>
+    <tr>
+      <td>EfficientViTSAM_l2</td>
+    </tr>
+    <tr>
+      <td>EfficientViTSAM_l1</td>
+    </tr>
+    <tr>
+      <td>EfficientViTSAM_l0</td>
+    </tr>
+    <tr>
+      <td>MobileSAM</td>
+    </tr>
+    <tr>
+      <td>facebook/sam2.1-hiera-tiny</td>
+    </tr>
+    <tr>
+      <td>facebook/sam2.1-hiera-small</td>
+    </tr>
+    <tr>
+      <td>facebook/sam2.1-hiera-large</td>
+    </tr>
+    <tr>
+      <td>facebook/sam2.1-hiera-base-plus</td>
+    </tr>
+    <tr>
+      <td>SAMHQ_vit_h</td>
+    </tr>
+    <tr>
+      <td>SAMHQ_vit_l</td>
+    </tr>
+    <tr>
+      <td>SAMHQ_vit_b</td>
+    </tr>
+    <tr>
+      <td>SAMHQ_vit_tiny</td>
+    </tr>
+  </tbody>
+</table>
+
+
 ## Setting up environment
 
 1. First use the `environmnet.yml` to make a conda/mamba environment.
