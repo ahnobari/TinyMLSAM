@@ -1,4 +1,4 @@
-name: TinySAM_
+name: TinySAM
 channels:
   - conda-forge
   - defaults
@@ -8,14 +8,35 @@ dependencies:
   - python=3.10
   - numpy
   - jupyter
-  - matplotlib
-  - pandas
-  - scipy
-  - opencv
-  - pip
-  - pytorch==2.1.2 
-  - torchvision==0.16.2 
-  - torchaudio==2.1.2 
-  - pytorch-cuda=12.1
-  - mmdet
-  - mmcv==2.1.0
+  - pip:
+    - loralib
+    - yacs
+    - addict
+    - diffusers
+    - gradio
+    - huggingface_hub
+    - matplotlib
+    - numpy
+    - Pillow
+    - pycocotools
+    - PyYAML
+    - requests
+    - setuptools
+    - supervision
+    - termcolor
+    - timm
+    - transformers
+    - yapf
+    - nltk
+    - fairscale
+    - litellm
+    - torchmetrics
+    - matplotlib
+    - onnxscript
+    - timm
+    - git+https://github.com/facebookresearch/sam2.git
+    - git+https://github.com/yformer/EfficientSAM.git
+    - git+https://github.com/ChaoningZhang/MobileSAM.git
+    - segment-anything-hq
+    - git+https://github.com/chongzhou96/EdgeSAM.git
+    - git+https://github.com/mit-han-lab/efficientvit.git
