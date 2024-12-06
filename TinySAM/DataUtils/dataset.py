@@ -257,13 +257,14 @@ class ZeroShotObjectDetectionDataset(Dataset):
             final_masks = torch.tensor(np.array(final_masks)).bool()
             final_labels = torch.tensor(np.array(final_labels)).long()
             final_scores = torch.tensor(np.array(final_scores)).float()
-            unified_mask = torch.tensor(unified_mask).long()
-            
-            iou.update(unified_mask, torch.tensor(self.label_ids[i]).long())
-            
+
             intersection = (unified_mask == self.label_ids[i])[np.logical_and(unified_mask != 0, self.label_ids[i] != 0)].sum()
             union = ((unified_mask + self.label_ids[i]) != 0).sum()
             overall_iou += intersection/union/len(boxes)
+            
+            unified_mask = torch.tensor(unified_mask).long()
+            
+            iou.update(unified_mask, torch.tensor(self.label_ids[i]).long())
             
             preds = [{
                 'boxes': final_boxes,

@@ -150,3 +150,6 @@ weights/*
 # exception .gitkeep and py files in weights folder
 !weights/.gitkeep
 !weights/*.py
+
+#ignore results folder
+results/*
