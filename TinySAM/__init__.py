@@ -5,5 +5,6 @@ import warnings
 warnings.filterwarnings("ignore")
 
 from .DataUtils import *
-from .InferenceUtils import *
+from .Models import *
 from .QuantizationUtils import *
+from .InferenceUtils import *

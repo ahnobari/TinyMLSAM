@@ -1,12 +1,11 @@
 import torch
 import bitsandbytes as bnb
-from segment_anything import sam_model_registry, SamPredictor
 import random
 import gc
 import copy
 
 
-from ..InferenceUtils import *
+from ..Models import *
 
 def model_quantization(orig_model, quant_type="nf4", pec=100):
     '''
