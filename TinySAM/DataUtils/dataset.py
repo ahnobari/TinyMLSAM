@@ -114,6 +114,8 @@ class ZeroShotObjectDetectionDataset(Dataset):
         for i, mask in enumerate(masks):
             show_mask(mask, plt.gca(), color=self.id_color_map[box_labels[i]])
             show_box(boxes[i], plt.gca(), color=self.id_color_map[box_labels[i]])
+            # add annotation
+            plt.text(boxes[i][0], boxes[i][1], self.id_map[box_labels[i]], size=10, color='black', ha = 'left', va = 'bottom', bbox=dict(boxstyle="square", facecolor=self.id_color_map[box_labels[i]], edgecolor=self.id_color_map[box_labels[i]], alpha=1.0, pad=0.0))
             
     def visualize_prediction(self, idx, boxes, masks, labels, unify=False):
         img = self.images[idx]
@@ -129,6 +131,7 @@ class ZeroShotObjectDetectionDataset(Dataset):
                     id_ = self.label_dict[labels[i]]['id']
                 show_mask(mask, plt.gca(), color=self.id_color_map[id_])
                 show_box(boxes[i], plt.gca(), color=self.id_color_map[id_])
+                plt.text(boxes[i][0], boxes[i][1], self.id_map[id_], size=10, color='black', ha = 'left', va = 'bottom', bbox=dict(boxstyle="square", facecolor=self.id_color_map[id_], edgecolor=self.id_color_map[id_], alpha=1.0, pad=0.0))
         else:
             final_boxes = []
             final_masks = []
@@ -160,6 +163,7 @@ class ZeroShotObjectDetectionDataset(Dataset):
             for i in range(len(final_boxes)):
                 show_mask(final_masks[i], plt.gca(), color=self.id_color_map[final_labels[i]])
                 show_box(final_boxes[i], plt.gca(), color=self.id_color_map[final_labels[i]])
+                plt.text(final_boxes[i][0], final_boxes[i][1], self.id_map[final_labels[i]], size=10, color='black', ha = 'left', va = 'bottom', bbox=dict(boxstyle="square", facecolor=self.id_color_map[final_labels[i]], edgecolor=self.id_color_map[final_labels[i]], alpha=1.0, pad=0.0))
             
             # finally plot the unified masks next to each other
             fig, axs = plt.subplots(1, 2, figsize=(20, 10))
