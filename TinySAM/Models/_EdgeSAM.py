@@ -32,6 +32,9 @@ class EdgeSAM:
         global DEVICE 
         DEVICE = self.device
         
+        if variant == "Base":
+            variant = ""
+        
         self.model = sam_model_registry["edge_sam"](checkpoint=f'weights/edge_sam{variant}.pth')
         self.model.to(self.device)
         self.model.eval()

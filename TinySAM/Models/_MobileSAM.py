@@ -5,7 +5,7 @@ from tqdm.auto import trange
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 
 class MobileSAM:
-    def __init__(self, device: str = None, compile=False):
+    def __init__(self, variant:str = "", device: str = None, compile=False):
         '''
         MobileSAM model for zero-shot object detection.
         

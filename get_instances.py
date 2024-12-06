@@ -14,7 +14,7 @@ argparser.add_argument('--data_path', type=str, default='Data/cityscapes', help=
 argparser.add_argument('--batch_size', type=int, default=8, help='Batch size for inference. Default is 8.')
 argparser.add_argument('--box_threshold', type=float, default=0.2, help='Threshold for bounding box detection. Default is 0.2.')
 argparser.add_argument('--text_threshold', type=float, default=0.15, help='Threshold for text detection. Default is 0.15.')
-argparser.add_argument('--use_prompt_engineering', action='store_false', help='Use prompt engineering for grounding. Default is True.')
+argparser.add_argument('--use_prompt_engineering', action='store_true', help='Use prompt engineering for grounding. Default is False.')
 argparser.add_argument('--save_path', type=str, default='results', help='Path to save the instances. Default is results.')
 args = argparser.parse_args()
 
@@ -22,7 +22,8 @@ if not os.path.exists(args.save_path):
     os.makedirs(args.save_path)
 
 datset_folder = args.data_path.split('/')[-1]
-save_path = os.path.join(args.save_path, f'instances_{args.model}_{datset_folder}_BT_{args.box_threshold}_TT_{args.text_threshold}.pkl')
+pe = 'PE' if args.use_prompt_engineering else 'NoPE'
+save_path = os.path.join(args.save_path, f'instances_{args.model}_{datset_folder}_BT_{args.box_threshold}_TT_{args.text_threshold}_{pe}.pkl')
 
 # Load the model
 if args.model == 'Base':
