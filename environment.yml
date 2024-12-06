@@ -9,6 +9,7 @@ dependencies:
   - numpy
   - jupyter
   - pip:
+    - accelerate
     - loralib
     - yacs
     - addict
