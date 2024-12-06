@@ -41,7 +41,7 @@ for MODEL in "${MODELS[@]}"; do
                         --box_threshold "$BOX_THRESHOLD" \
                         --text_threshold "$TEXT_THRESHOLD" \
                         --save_path "$SAVE_PATH" \
-                        --prompt_engineering
+                        --use_prompt_engineering
                 else
                     python get_instances.py \
                         --model "$MODEL" \
@@ -50,6 +50,7 @@ for MODEL in "${MODELS[@]}"; do
                         --box_threshold "$BOX_THRESHOLD" \
                         --text_threshold "$TEXT_THRESHOLD" \
                         --save_path "$SAVE_PATH"
+                fi
             done
         done
     done
