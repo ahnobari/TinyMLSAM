@@ -20,65 +20,62 @@ argparser.add_argument('--results_path', type=str, default='results', help='path
 argparser.add_argument('--use_prompt_engineering', action='store_true', help='Use prompt engineering for grounding. Default is False.')
 args = argparser.parse_args()
 
+# check if the results path exists
+if not os.path.exists(args.results_path):
+    os.makedirs(args.results_path)
+    
+# create a unique id for the run
+while True:
+    uid = str(uuid.uuid4())
+    model_safe = args.model_variant.replace("/", "_")
+    f_name = os.path.join(args.results_path, f"{args.model}_{model_safe}_{uid}.pkl")
+    if not os.path.exists(f_name):
+        break
+
+# make an empty results dictionary
+if args.save_masks:
+    results = {"mIoU": None, "mAP": None, "overall_iou": None, "processed_boxes": None, "processed_labels": None, "processed_masks": None, "processed_scores": None, "unified_masks": None}
+else:
+    results = {"mIoU": None, "mAP": None, "overall_iou": None}
+
+# save the empty results dictionary
+with open(f_name, 'wb') as f:
+    pickle.dump(results, f)
+    
 # Load the model
 SAMModel = getattr(TinySAM, args.model)(args.model_variant)
-
-# # check if the results path exists
-# if not os.path.exists(args.results_path):
-#     os.makedirs(args.results_path)
     
-# # create a unique id for the run
-# while True:
-#     uid = str(uuid.uuid4())
-#     model_safe = args.model_variant.replace("/", "_")
-#     f_name = os.path.join(args.results_path, f"{args.model}_{model_safe}_{uid}.pkl")
-#     if not os.path.exists(f_name):
-#         break
+# Load the dataset
+data = ZeroShotObjectDetectionDataset(path=args.data_path, prompting=args.use_prompt_engineering)
 
-# # make an empty results dictionary
-# if args.save_masks:
-#     results = {"mIoU": None, "mAP": None, "overall_iou": None, "processed_boxes": None, "processed_labels": None, "processed_masks": None, "processed_scores": None, "unified_masks": None}
-# else:
-#     results = {"mIoU": None, "mAP": None, "overall_iou": None}
-
-# # save the empty results dictionary
-# with open(f_name, 'wb') as f:
-#     pickle.dump(results, f)
+# get annotations
+with open(args.queries_path, 'rb') as f:
+    queries = pickle.load(f)
     
-# # Load the model
-# SAMModel = getattr(TinySAM, args.model)(args.model_variant)
-    
-# # Load the dataset
-# data = ZeroShotObjectDetectionDataset(path=args.data_path, prompting=args.use_prompt_engineering)
+boxes = queries['boxes']
+labels = queries['labels']
+scores = queries['scores']
 
-# # get annotations
-# with open(args.queries_path, 'rb') as f:
-#     queries = pickle.load(f)
-    
-# boxes = queries['boxes']
-# labels = queries['labels']
-# scores = queries['scores']
+# Run the SAM model
+masks = SAMModel(data.images, boxes)
 
-# # Run the SAM model
-# masks = SAMModel(data.images, boxes)
-
-# # Evaluate the results
-# if args.save_masks:
-#     mIoU, mAP, overall_iou, processed_boxes, processed_labels, processed_masks, processed_scores, unified_masks = data.evaluate_precitions(boxes, labels, masks, scores, return_processed=True)
-#     results["processed_boxes"] = processed_boxes
-#     results["processed_labels"] = processed_labels
-#     results["processed_masks"] = processed_masks
-#     results["processed_scores"] = processed_scores
-#     results["unified_masks"] = unified_masks
-#     results["mIoU"] = mIoU
-#     results["mAP"] = mAP
-#     results["overall_iou"] = overall_iou
-# else:
-#     mIoU, mAP, overall_iou = data.evaluate_precitions(boxes, labels, masks, scores, return_processed=False)
-#     results["mIoU"] = mIoU
-#     results["mAP"] = mAP
-#     results["overall_iou"] = overall_iou
+# Evaluate the results
+if args.save_masks:
+    mIoU, mAP, overall_iou, processed_boxes, processed_labels, processed_masks, processed_scores, unified_masks = data.evaluate_precitions(boxes, labels, masks, scores, return_processed=True)
+    results["processed_boxes"] = processed_boxes
+    results["processed_labels"] = processed_labels
+    results["processed_masks"] = processed_masks
+    results["processed_scores"] = processed_scores
+    results["unified_masks"] = unified_masks
+    results["mIoU"] = mIoU
+    results["mAP"] = mAP
+    results["overall_iou"] = overall_iou
+else:
+    mIoU, mAP, overall_iou = data.evaluate_precitions(boxes, labels, masks, scores, return_processed=False)
+    results["mIoU"] = mIoU
+    results["mAP"] = mAP
+    results["overall_iou"] = overall_iou
     
-# # save the results
-# with open(f_name, 'wb') as f:
-#     pickle.dump(results, f)
+# save the results
+with open(f_name, 'wb') as f:
+    pickle.dump(results, f)
