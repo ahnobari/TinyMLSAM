@@ -50,8 +50,7 @@ for MODEL in "${!MODELS_AND_VARIANTS[@]}"; do
                     --model_variant "$VARIANT" \
                     --data_path "$DATASET" \
                     --queries_path "$QUERY_PATH" \
-                    --results_path "$RESULTS_PATH" \
-                    --save_masks
+                    --results_path "$RESULTS_PATH"
             done
         done
     done
