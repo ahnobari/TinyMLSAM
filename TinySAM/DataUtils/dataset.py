@@ -14,14 +14,15 @@ from torchmetrics.detection import MeanAveragePrecision
 from torchmetrics.segmentation import MeanIoU
 
 class ZeroShotObjectDetectionDataset(Dataset):
-    def __init__(self, path: str, do_preprocess: bool = False, processor: AutoProcessor = None):
+    def __init__(self, path: str, do_preprocess: bool = False, processor: AutoProcessor = None, prompting: bool = True):
         '''
         Dataset for Zero-Shot Object Detection.
         
         Args:
             images (torch.Tensor): Images to be processed.
-            text_prompts (List[str]): Text Prompts for the images.
-            processor (AutoProcessor): Processor for the model. (Default: None - No Processor)
+            do_preprocess (bool): Whether to preprocess the images.
+            processor (AutoProcessor): Huggingface AutoProcessor for text processing.
+            prompting (bool): Whether to use prompting for the model (must have prompt_dict.json in dataset).
         '''
         
         self.path = path
@@ -44,7 +45,12 @@ class ZeroShotObjectDetectionDataset(Dataset):
         
         self.label_dict = json.load(open(os.path.join(self.path, "label_dict.json"), "r"))
         
-        self.text_prompts = list(self.label_dict.keys())
+        if prompting:
+            self.prompt_dict = json.load(open(os.path.join(self.path, "prompt_dict.json"), "r"))
+        else:
+            self.prompt_dict = self.label_dict
+        
+        self.text_prompts = list(self.prompt_dict.keys())
         for i in range(len(self.text_prompts)):
             self.text_prompts[i] = self.text_prompts[i] + '.'
         
@@ -129,7 +135,7 @@ class ZeroShotObjectDetectionDataset(Dataset):
                 if isinstance(labels[i], int):
                     id_ = labels[i]
                 else:
-                    id_ = self.label_dict[labels[i]]['id']
+                    id_ = self.prompt_dict[labels[i]]['id']
                 show_mask(mask, plt.gca(), color=self.id_color_map[id_])
                 show_box(boxes[i], plt.gca(), color=self.id_color_map[id_])
                 if annotations:
@@ -144,7 +150,7 @@ class ZeroShotObjectDetectionDataset(Dataset):
                 if isinstance(labels[j], int):
                     id_ = labels[j]
                 else:
-                    id_ = self.label_dict[labels[j]]['id']
+                    id_ = self.prompt_dict[labels[j]]['id']
                 if self.id_has_instance[id_]:
                     final_boxes.append(boxes[j])
                     final_masks.append(masks[j])
@@ -220,7 +226,7 @@ class ZeroShotObjectDetectionDataset(Dataset):
                 if isinstance(labels[i][j], int):
                     id_ = labels[i][j]
                 else:
-                    id_ = self.label_dict[labels[i][j]]['id']
+                    id_ = self.prompt_dict[labels[i][j]]['id']
                 if self.id_has_instance[id_]:
                     final_boxes.append(boxes[i][j])
                     final_masks.append(masks[i][j])

@@ -1,6 +1,8 @@
 import torch
 from transformers import AutoModelForZeroShotObjectDetection, AutoProcessor
+from torch.utils.data import DataLoader
 from typing import List
+from tqdm.auto import tqdm
 
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 
@@ -23,7 +25,7 @@ class GDino:
         DEVICE = self.device
         
         self.model = AutoModelForZeroShotObjectDetection.from_pretrained(model_name, device_map = self.device)
-        
+        self.model.eval()
         if compile:
             self.model.compile()
         
@@ -52,5 +54,32 @@ class GDino:
         output = self.processor.post_process_grounded_object_detection(outputs, input_ids=input_ids, box_threshold=self.box_threshold, text_threshold=self.text_threshold, target_sizes=[target_image_size]*batch_size)
         
         return output
+    
+    def run_loader(self, dataloader:  DataLoader, input_ids: torch.Tensor, text_prompts: list[str], target_image_size: tuple, **kwargs):
         
+        boxes = []
+        labels = []
+        scores = []
         
+        for images in tqdm(dataloader):
+            images = images.to(self.device)
+            outputs = self(images, input_ids, target_image_size, **kwargs)
+            for output in outputs:
+                bs = output['boxes'].cpu().numpy()
+                ls = output['labels']
+                ss = output['scores'].cpu().numpy()
+                valids = []
+                for i in range(len(ls)):
+                    # only pick first label for any dual predictions
+                    if ls[i] + '.' not in text_prompts:
+                        ls[i] = ls[i].split(' ')[0]
+                        if ls[i] + '.' not in text_prompts:
+                            # Remove this prediction if it is not in the text prompts
+                            ls[i] = None
+                    if ls[i] is not None:
+                        valids.append(i)
+                boxes.append(bs[valids])
+                scores.append(ss[valids])
+                labels.append([ls[i] for i in valids])
+                
+        return boxes, labels, scores
