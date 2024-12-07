@@ -36,6 +36,9 @@ class MobileSAM:
     def __call__(self, images, boxes):
         masks = []
         for i in trange(len(images)):
+            if len(boxes[i]) == 0:
+                masks.append([])
+                continue
             # self.model.set_image(images[i])
             self.predictor.set_image(images[i])
             box_input = self.predictor.transform.apply_boxes(boxes[i], self.predictor.original_size)

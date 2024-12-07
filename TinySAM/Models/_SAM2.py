@@ -33,6 +33,9 @@ class SAM2:
     def __call__(self, images, boxes):
         masks = []
         for i in trange(len(images)):
+            if len(boxes[i]) == 0:
+                masks.append([])
+                continue
             self.model.set_image(images[i])
             masks_, _, _ = self.model.predict(box=boxes[i], multimask_output=False)
             if masks_.ndim == 3:

@@ -35,6 +35,9 @@ class EfficientSAM:
     def __call__(self, images, boxes):
         masks = []
         for i in trange(len(images)):
+            if len(boxes[i]) == 0:
+                masks.append([])
+                continue
             box_input = torch.tensor(boxes[i], device=self.device).float()
             N_query = box_input.size(0)
             box_input = box_input.view(1, N_query, 2, 2)
