@@ -28,7 +28,8 @@ if not os.path.exists(args.results_path):
 while True:
     uid = str(uuid.uuid4())
     model_safe = args.model_variant.replace("/", "_")
-    f_name = os.path.join(args.results_path, f"{args.model}_{model_safe}_{uid}.pkl")
+    Dino_safe = args.queries_path.split("/")[-1].replace(".pkl", "")
+    f_name = os.path.join(args.results_path, f"{args.model}_{model_safe}_{Dino_safe}_{uid}.pkl")
     if not os.path.exists(f_name):
         break
 

@@ -242,6 +242,8 @@ class ZeroShotObjectDetectionDataset(Dataset):
                         idx = final_labels.index(id_)
                         final_masks[idx] = np.logical_or(final_masks[idx], masks[i][j])
                         x,y = np.where(final_masks[idx])
+                        if len(x) == 0 or len(y) == 0:
+                            continue
                         final_boxes[idx] = np.array([np.min(y), np.min(x), np.max(y), np.max(x)])
 
                 unified_mask[np.logical_and(unified_mask == 0 ,masks[i][j])] = id_
