@@ -2,6 +2,10 @@ from segment_anything_hq import sam_model_registry, SamPredictor
 import torch
 from tqdm.auto import trange
 
+import numpy as np
+import time
+import torch._dynamo
+torch._dynamo.config.suppress_errors = True
 
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 
@@ -58,3 +62,61 @@ class SAMHQ:
                 masks.append(masks_.squeeze(1).astype(bool))
             
         return masks
+    
+    def run_throughput_test(self, n_boxes = 28, n_exprs = 100):
+        # make sure all the layers are compiled
+        self.img_encoder_isolated.compile()
+        self.prompt_encoder_isolated.compile()
+        self.mask_decoder_isolated.compile()
+        
+        sample_input_image = torch.rand((1, 3, self.image_size, self.image_size)).to(self.device)
+        sample_box_queries = torch.randint(low=0, high=self.image_size, size=(n_boxes, 4)).to(self.device)
+        
+        # sort box coords
+        sample_box_queries = sample_box_queries.sort(dim=1).values.float()
+        
+        # compilation run
+        self.raw_call(sample_input_image, sample_box_queries)
+        
+        times = []
+        
+        if self.device == "cuda":
+            for i in trange(n_exprs):
+                start = torch.cuda.Event(enable_timing=True)
+                end = torch.cuda.Event(enable_timing=True)
+
+                start.record()
+                self.raw_call(sample_input_image, sample_box_queries)
+                end.record()
+
+                torch.cuda.synchronize()
+                times.append(start.elapsed_time(end))
+        
+        else:
+            for i in trange(n_exprs):
+                start = time.time()
+                self.raw_call(sample_input_image, sample_box_queries)
+                end = time.time()
+                times.append((end-start)*1000)
+            
+        print(f"Throughput Test: {n_exprs} runs of {n_boxes} boxes")
+        print(f"Mean Time: {np.mean(times)}  +/- {np.std(times)} ms")
+        
+    
+    @torch.inference_mode()
+    @torch.autocast(device_type=DEVICE, dtype=torch.bfloat16)
+    @torch.no_grad()
+    def raw_call(self, img, queries):
+        features, interm_features = self.img_encoder_isolated(img)
+        sparse_embeddings, dense_embeddings = self.prompt_encoder_isolated(points=None, masks = None, boxes=queries)
+        low_res_masks, iou_predictions = self.mask_decoder_isolated(
+            image_embeddings=features,
+            image_pe=self.prompt_encoder_isolated.get_dense_pe(),
+            sparse_prompt_embeddings=sparse_embeddings,
+            dense_prompt_embeddings=dense_embeddings,
+            hq_token_only = False,
+            multimask_output=False,
+            interm_embeddings=interm_features
+        )
+        
+        return low_res_masks, iou_predictions
