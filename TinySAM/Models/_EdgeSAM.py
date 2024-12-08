@@ -47,7 +47,11 @@ class EdgeSAM:
         self.image_size = self.model.image_encoder.img_size
         
         self.img_encoder_isolated = self.model.image_encoder
-        self.prompt_decoder_isolated = self.model.mask_decoder
+        self.prompt_encoder_isolated = self.model.prompt_encoder
+        self.mask_decoder_isolated = self.model.mask_decoder
+        
+        self.sample_input_image = None
+        self.sample_box_queries = None
     
     @torch.inference_mode()
     @torch.autocast(device_type=DEVICE, dtype=torch.bfloat16)
@@ -69,7 +73,4 @@ class EdgeSAM:
                 masks.append(masks_.squeeze(1).astype(bool))
             
         return masks
-    
-    # def raw_call(self, n_boxes = 28):
-        
         

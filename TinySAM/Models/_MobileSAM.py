@@ -33,7 +33,8 @@ class MobileSAM:
         self.image_size = self.model.image_encoder.img_size
         
         self.img_encoder_isolated = self.model.image_encoder
-        self.prompt_decoder_isolated = self.model.mask_decoder
+        self.prompt_encoder_isolated = self.model.prompt_encoder
+        self.mask_decoder_isolated = self.model.mask_decoder
     
     @torch.inference_mode()
     @torch.autocast(device_type=DEVICE, dtype=torch.bfloat16)

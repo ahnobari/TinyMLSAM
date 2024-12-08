@@ -30,7 +30,8 @@ class SAM2:
         self.image_size = self.model.model.image_size
         
         self.img_encoder_isolated = self.model.model.image_encoder
-        self.prompt_decoder_isolated = self.model.model.sam_mask_decoder
+        self.prompt_encoder_isolated = self.model.model.sam_prompt_encoder
+        self.mask_decoder_isolated = self.model.model.sam_mask_decoder
     
     @torch.inference_mode()
     @torch.autocast(device_type=DEVICE, dtype=torch.bfloat16)
