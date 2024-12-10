@@ -112,6 +112,29 @@ python run_segmentation.py \
 # - Processes data from 'Data/cityscapes'
 # - Loads queries from 'results/instances_Base_cityscapes_BT_0.2_TT_0.15_PE.pkl'
 # - Saves the segmentation masks to the results directory
+# - Enables prompt engineering for grounding (instance should have been predicted with prompt engineering)
+```
+
+Before running the above you will need to first compute queries using Grounding Dino. To do so run `./run_all_dino.sh`
+You can also specify Dino model settings by running the following script:
+```bash
+#Example usage:
+python get_instances.py \
+    --model Base \
+    --data_path Data/cityscapes \
+    --batch_size 8 \
+    --box_threshold 0.2\
+    --text_threshold 0.15 \
+    --save_path results \
+    --use_prompt_engineering
+
+# This command:
+# - Uses the Base variant of grounding dino model (can be Tiny)
+# - Processes data from 'Data/cityscapes'
+# - use a batch size of 8
+# - uses a box threshold of 0.2
+# - uses a text threshold of 0.15
+# - Saves the instances predicted in the results folder
 # - Enables prompt engineering for grounding
 ```
 
